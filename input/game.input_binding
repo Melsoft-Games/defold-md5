@@ -1,0 +1,12 @@
+key_trigger {
+  input: KEY_BACKSPACE
+  action: "remove_char"
+}
+mouse_trigger {
+  input: MOUSE_BUTTON_LEFT
+  action: "touch"
+}
+text_trigger {
+  input: TEXT
+  action: "write_char"
+}

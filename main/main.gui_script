@@ -1,0 +1,44 @@
+
+function init(self)
+	self.inp = {
+		box_node = gui.get_node("inp_val"),
+		txt_node = gui.get_node("inp_val_txt"),
+		txt_val = ""
+	}
+	self.md5 = {
+		txt_node = gui.get_node("outp_val_txt"),
+		txt_val = ""
+	}
+	msg.post(".", "acquire_input_focus")
+end
+
+local function refresh_md5_and_labels(self)
+	-- calculate new hash from input string (or from empty)
+	self.md5.txt_val = MD5.calculate(self.inp.txt_val or "")
+	-- update text labels
+	gui.set_text(self.md5.txt_node, self.md5.txt_val)
+	gui.set_text(self.inp.txt_node, self.inp.txt_val)
+end
+
+function on_input(self, action_id, action)
+	local x, y = action.x, action.y
+	if action_id == hash("touch") and action.released then
+		-- chack enable/disable writing
+		if gui.pick_node(self.inp.box_node, x, y) then
+			gui.show_keyboard(gui.KEYBOARD_TYPE_DEFAULT, true)
+			self.writing = true
+		else
+			gui.hide_keyboard()
+			self.writing = false
+		end
+	elseif self.writing then
+		-- handle input text
+		if action_id == hash("write_char") then
+			self.inp.txt_val = self.inp.txt_val .. action.text
+		elseif action_id == hash("remove_char") then
+			self.inp.txt_val = string.sub(self.inp.txt_val, 1, string.len(self.inp.txt_val) - 1)
+		end
+		-- calculate md5 and update labels
+		refresh_md5_and_labels(self)
+	end
+end
